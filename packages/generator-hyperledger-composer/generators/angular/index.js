@@ -62,8 +62,60 @@ module.exports = yeoman.Base.extend({
 
     _optionOrPrompt: optionOrPrompt,
 
+    constructor: function() {
+        yeoman.Base.apply(this, arguments);
+
+        this.option('isexisting', { type: Boolean, required: false });
+        this.option('projectname', { type: String, required: false });
+        this.option('projectdescription', { type: String, required: false });
+        this.option('authorname', { type: String, required: false });
+        this.option('authoremail', { type: String, required: false });
+        this.option('license', { type: String, required: false, default: 'Apache-2.0' });
+        this.option('businessnetworkcard', { type: String, required: false });
+        this.option('isexistingrest', { type: Boolean, required: false });
+        this.option('serveraddress', { type: String, required: false, default: 'http://localhost' });
+        this.option('serverport', { type: String, required: false, default: '3000' });
+        this.option('usenamespaces', { type: String, required: false });
+
+        this.log(this.options.isexisting);
+        this.log(this.options.projectname);
+        this.log(this.options.projectdescription);
+        this.log(this.options.authorname);
+        this.log(this.options.authoremail);
+        this.log(this.options.license);
+        this.log(this.options.businessnetworkcard);
+        this.log(this.options.isexistingrest);
+        this.log(this.options.serveraddress);
+        this.log(this.options.serverport);
+        this.log(this.options.usenamespaces);
+
+
+        if (typeof(this.options.isexisting) === 'string' && this.options.isexisting === 'true') {
+            this.liveNetwork = true;
+        } else if (typeof(this.options.isexisting) === 'string' && this.options.isexisting === 'false') {
+            this.liveNetwork = false;
+        } else {
+            this.liveNetwork = this.options.isexisting;
+        }
+
+        this.appName = this.options.projectname;
+        this.appDescription = this.options.projectdescription;
+        this.authorName = this.options.authorname;
+        this.authorEmail = this.options.authoremail;
+        this.license = this.options.license;
+        this.cardName = this.options.businessnetworkcard;
+        businessNetworkConnection = new BusinessNetworkConnection(this.cardName);
+        this.apiServer = this.options.isexistingrest; // [generate|connect]
+
+        this.apiIP = this.options.serveraddress;
+        this.apiPort = this.options.serverport; // e.g. 3000
+        this.apiNamespace = this.options.usenamespaces; // [always|never]
+
+        this.options = this.env.options;
+    },
+
     prompting: function () {
-        Util.log('Welcome to the Hyperledger Composer Angular project generator');
+        Util.log('Welcome to the DORO Composer Angular project generator');
 
         let liveConnectQuestion = [{
             type: 'confirm',
@@ -280,6 +332,13 @@ module.exports = yeoman.Base.extend({
             validate: Util.validateNamespace
         }
         ];
+
+        if ( this.appName   && this.appDescription && this.authorName && 
+            this.license && this.cardName && this.apiServer && this.apiIP &&
+            this.apiPort && this.apiNamespace) {
+                Util.log('All arguments were provided, no need to prompt');
+                return [];
+            }
 
         return this._optionOrPrompt(liveConnectQuestion)
             .then((answers) => {
