@@ -111,6 +111,8 @@ module.exports = yeoman.Base.extend({
         this.apiPort = this.options.serverport; // e.g. 3000
         this.apiNamespace = this.options.usenamespaces; // [always|never]
 
+        this.apiURL = new URL(`${this.apiIP}:${this.apiPort}`).origin;
+        
         this.options = this.env.options;
     },
 
